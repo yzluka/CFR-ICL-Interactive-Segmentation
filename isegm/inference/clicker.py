@@ -27,9 +27,10 @@ class Clicker(object):
         return self.clicks_list[:clicks_limit]
 
     def _get_next_click(self, pred_mask, padding=True):
+
         fn_mask = np.logical_and(np.logical_and(self.gt_mask, np.logical_not(pred_mask)), self.not_ignore_mask)
         fp_mask = np.logical_and(np.logical_and(np.logical_not(self.gt_mask), pred_mask), self.not_ignore_mask)
-
+        
         if padding:
             fn_mask = np.pad(fn_mask, ((1, 1), (1, 1)), 'constant')
             fp_mask = np.pad(fp_mask, ((1, 1), (1, 1)), 'constant')
@@ -82,7 +83,7 @@ class Clicker(object):
 
     def reset_clicks(self):
         if self.gt_mask is not None:
-            self.not_clicked_map = np.ones_like(self.gt_mask, dtype=np.bool)
+            self.not_clicked_map = np.ones_like(self.gt_mask, dtype='bool')
 
         self.num_pos_clicks = 0
         self.num_neg_clicks = 0

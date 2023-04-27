@@ -62,3 +62,29 @@ def evaluate_sample(image, gt_mask, predictor, max_iou_thr,
                          predictor.zoom_in)
 
         return clicker.clicks_list, np.array(ious_list, dtype=np.float32), pred_probs
+
+def evaluate_sample_onepass(image, gt_mask, predictor, clicks, pred_thr=0.49, iterative=True):
+    clicker = Clicker()
+    pred_mask = np.zeros_like(gt_mask)
+    ious_list = []
+    
+    with torch.no_grad():
+        predictor.set_input_image(image)
+        
+    if iterative:
+        for click in clicks:
+            clicker.add_click(click)
+            pred_probs = predictor.get_prediction(clicker)
+            pred_mask = pred_probs > pred_thr
+            ious_list.append(utils.get_iou(gt_mask, pred_mask))
+    else:
+        for click in clicks:
+            clicker.add_click(click)
+            
+        pred_probs = predictor.get_prediction(clicker)
+        pred_mask = pred_probs > pred_thr
+        ious_list.append(utils.get_iou(gt_mask, pred_mask))
+       
+    
+
+    return pred_mask, pred_probs, ious_list
